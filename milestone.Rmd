@@ -15,11 +15,14 @@ This paper is the first preliminary report of our work. It explains our explorat
 First of all we upload (if necessary) the set of text files. Then we create main structure for managing documents in tm package (so-called Corpus), representing a collection of text documents. 
 
 ``` {r echo = TRUE}
-# Here we check is there folder with data already exits in working directory. 
-# If not we upload it into working directory and create a corpus
+# Let us turn on sum libraries.
 
+library(stringi)
 library(NLP)
 library(tm)
+
+# Here we check is there folder with data already exits in working directory. 
+# If not we upload it into working directory
 
 Windows <- FALSE
 
@@ -37,4 +40,20 @@ if(!("final" %in% dir())){
 crp <- VCorpus(DirSource("final/en_US/", encoding = "UTF-8"),
                readerControl = list(language = "en_US"))
 ```
+
+Let us have a quick initial look on what we get.
+
+``` {r echo = F}
+q.summ <- data.frame(matrix(0, ncol = 4, nrow = 3))
+q.summ[, 1] <- unlist(sapply(paste("final/en_US/", list.files("final/en_US/"), sep = ""), file.info)[1,])/1024/1024
+q.summ[, 2] <- sapply(names(crp), function(x) length(crp[[x]][[1]])/1000)
+q.summ[, 3] <- sapply(names(crp), 
+                      function(x) sum(stri_count(crp[[x]][[1]],regex="\\S+"))/1000000)
+q.summ[, 4] <- sapply(names(crp), function(x) sum(nchar(crp[[x]][[1]]))/1000000)
+q.summ <- round(q.summ, 0)
+names(q.summ) <- c("File size (Mb)", "Lines (thds)", "Word (mln)", "Characters (mln)")
+row.names(q.summ) <- c("Blogs", "News", "Twits")
+q.summ
+```
+
 
