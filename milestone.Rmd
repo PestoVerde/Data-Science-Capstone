@@ -1,0 +1,40 @@
+---
+author: "Sergey Cherkasov"
+date: "11 Dec 2015"
+output: html_document
+---
+### Data Science Capstone - Natural Language Processing
+# Milestone Report
+
+In this capstone we will work on understanding and building predictive text models for smart keyborad like those produced by [SwiftKey](https://swiftkey.com/en). To do so we are going to use three set of English texts of three different type - blogs, news and twits. The data is from a corpus called [HC Corpora](www.corpora.heliohost.org).
+
+This paper is the first preliminary report of our work. It explains our exploratory analysis and our plans for the creating algorithm and application.
+
+###Data acquisition and cleaning
+
+First of all we upload (if necessary) the set of text files. Then we create main structure for managing documents in tm package (so-called Corpus), representing a collection of text documents. 
+
+``` {r echo = TRUE}
+# Here we check is there folder with data already exits in working directory. 
+# If not we upload it into working directory and create a corpus
+
+library(NLP)
+library(tm)
+
+Windows <- FALSE
+
+if(!("final" %in% dir())){
+    if(Sys.info()["sysname"]=="Windows") Windows <- TRUE
+    url.data.file <- "https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip"
+    temp.zip.file.name <- "temp.zip"
+    if(Windows) download.file(url.data.file, temp.zip.file.name) else
+        download.file(url.data.file, temp.zip.file.name, method="curl")
+    unzip(temp.zip.file.name)
+    file.remove(temp.zip.file.name)
+    }
+
+# Now we create Corpus
+crp <- VCorpus(DirSource("final/en_US/", encoding = "UTF-8"),
+               readerControl = list(language = "en_US"))
+```
+
