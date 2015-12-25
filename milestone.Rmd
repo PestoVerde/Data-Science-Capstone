@@ -6,11 +6,11 @@ output: html_document
 ## Data Science Capstone - Natural Language Processing
 # Milestone Report
 
-In this capstone we will work on understanding and building predictive text models for smart keyborad like those produced by [SwiftKey](https://swiftkey.com/en). To do so we are going to use three set of English texts of three different type - blogs, news and twits. The data is from a corpus called [HC Corpora](www.corpora.heliohost.org).
+In this capstone we will work on understanding and building predictive text models for smart keyboard like those produced by [SwiftKey](https://swiftkey.com/en). To do so we are going to use three set of English texts of three different type - blogs, news and twits. The data is from a corpus called [HC Corpora](www.corpora.heliohost.org).
 
 This paper is the first preliminary report of our work. It explains our exploratory analysis and our plans for the creating algorithm and application.
 
-To keep the paper compact, we do not echo all the code. To see complete code, please visit [github page](github.com/PestoVerde/Data-Science-Capstone). All function we use could be found in Appendix below.
+To keep the paper compact, we do not echo all the code. To see complete code, please visit [github page](github.com/PestoVerde/Data-Science-Capstone). All function we use could be found in **Appendix** below.
 
 ##Data acquisition and cleaning
 
@@ -18,7 +18,7 @@ First of all we upload if necessary the set of text files (code not shown). Then
 
 ``` {r echo = TRUE}
 # Let us turn on some libraries.
-libs <- c("ggplot2", "rJava", "stringi", "NLP", "openNLP", "tm", "filehash", "RWeka")
+libs <- c("ggplot2", "rJava", "stringi", "NLP", "openNLP", "tm", "filehash", "RWeka", "gridExtra")
 sapply(libs, library, character.only = T, logical.return = T, 
        quietly = T, warn.conflicts = F)
 ```
@@ -42,7 +42,8 @@ if(!("final" %in% dir())){
 
 ``` {r echo = TRUE}
 # Here we create a Corpus.
-crp <- VCorpus(DirSource("final/en_US/", encoding = "UTF-8"),                               readerControl = list(language = "en_US", load = T))
+crp <- VCorpus(DirSource("final/en_US/", encoding = "UTF-8"),
+               readerControl = list(language = "en_US", load = T))
 
 ```
 
@@ -62,9 +63,9 @@ q.summ
 rm(crp) #Removing corpus, because it is too big.
 ```
 
-It looks like we have enough data for prediction. It makes sence that before exploratory analysis we do some sampling to spend resonable time for calculations. Let us take only **n** lines fron each of three provided files (blogs, new, twitter).
+It looks like we have enough data for prediction. It makes sense that before exploratory analysis we do some sampling to spend reasonable time for calculations. Let us take only **n** lines from each of three provided files (blogs, new, twitter).
 ``` {r echo = TRUE}
-n <- 1000
+n <- 10000
 set.seed(8310)
 blogs <- readLines("final/en_US/en_US.blogs.txt", skipNul = T)
 blogs <- sample(blogs, n)
@@ -75,19 +76,19 @@ twitter <- sample(twitter, n)
 
 ```
 
-###Preliminary considerations
-Before creation a model we have to clean data. The are several standard steps in linguistic data mining, which are putting all letters to lower case, removing extra spaces, punctuation and other non-alphabetic symbols, removing profanity words and so-called "stop-word", working with roots of words (tokenization, stemming or lemmatization) and creating n-grams. Here are some considerations regarding some steps in the light of our task.
+##Preliminary considerations
+Before creation a model we have to clean data. The are several standard steps in linguistic data mining, which are: putting all letters to lower case, removing extra spaces, punctuation and other non-alphabetic symbols, removing profanity words and so-called "stop-word", working with roots of words (tokenization, stemming or lemmatization) and creating n-grams. Here are some considerations regarding some steps in the light of our task.
 
-1. Since we have texts from twitter we have to remove all words in the form of **@user** and **#hashtag** before removing all the non-alphabetic symbols, otherwise we will have many senseless words.
-2. Should we remove apostrophes? They indicate possessive mode in English, can they change meaning of the frase? That is the question we can answer at the stage of building models.
-3. Should we remove dashes? They create new composite word, like **Alabama-based** which obviously have to be predicted separately. However since we are going to use 2- and 3-grams, it looks like dashes can be removed. 
-4. It looks like we also have to mark boundaries of sentences, they seem as inportant information for prediction. At least that will help us to predict the first word if user will not insert anything into line.
-5. For tokenized text words "car" and "cars" are different. For stemmed text words "car" and "cars" are the same. For lemmatisated text words "car", "cars", "automobile" and "automobiles" are the same. At first glance we have to tokenize our text for better prediction. However this is the topic of following researches which are beyond exploratory analysis.
-6. We also want to remove all profanity words because we do not want to predict them. However "stop word" like **the**, **a**, **for**, **nor**, **but** etc. we would like to leave because we are going to predict them too.
+1. Since we have texts from twitter we have to remove all words in the form of **\\@user** and **#hashtag** before removing all the non-alphabetic symbols, otherwise we will have many senseless words.
+2. Should we remove apostrophes? They indicate possessive mode in English, can they change meaning of the phrase? That is the question we can answer at the stage of building models.
+3. Should we remove dashes? They create new composite word, like **"Alabama-based"** which obviously have to be predicted separately. However since we are going to use 2- and 3-grams, it looks like dashes can be removed. 
+4. It looks like we also have to mark boundaries of sentences, they seem as important information for prediction. At least that will help us to predict the first word if user will not insert anything into line.
+5. For tokenized text words "car" and "cars" are different. For stemmed text words "car" and "cars" are the same. For lemmatisated text words "car", "cars", "automobile" and "automobiles" are the same. At first glance we have to tokenize our text for better prediction. However this is the topic of following researches which is beyond exploratory analysis.
+6. We also want to remove all profanity words because we do not want to predict them. However "stop-word" like **the**, **a**, **for**, **nor**, **but** etc. we would like to leave because we are going to predict them too.
 
-###Research of sentences
+####Research of sentences
 
-So, first of all, let us break our text in sentences and insert special marks for start of sentence (_sofs_) and end of sentence (_eofs_). Obviously we have to do this before cleaning punctuations. Later we will try to make preliminary conclusion should we consider boundaries of sentences in our model. We show calculations only for blogs, other sets if text give same results.
+So, let us decide regarding point 4 of the list above. First of all, let us break our text in sentences and insert special marks for start of sentence (_sofs_) and end of sentence (_eofs_). Obviously we have to do this before cleaning punctuation. Later we will try to make preliminary conclusion should we consider boundaries of sentences in our model. We show calculations only for blogs, other sets of text give same results.
 ``` {r echo = F}
 #Function marks boundaries of sentences
 convert.text.to.sentences <- function(text) {
@@ -107,7 +108,7 @@ convert.text.to.sentences <- function(text) {
 blogs.sent <- convert.text.to.sentences(blogs)
 ```
 
-Now we can clean both initial texs and text with boundaries of sentences.
+Now we can clean both initial texts and text with boundaries of sentences.
 
 ``` {r echo = F}
 
@@ -136,7 +137,7 @@ blogs <- clean_text(blogs, "profanity.txt")
 blogs.sent <- clean_text(blogs.sent, "profanity.txt")
 ```
 
-And now we tokenize both text with sentence's boundaries and text without them. Than we build 2-grams for first one and 1-gram for second one to estimate the differencies and decide shoud we include this information into our model. 
+And now we tokenize both text with sentence's boundaries and text without them. Than we build 2-grams for first one and 1-gram for second one to estimate the differences and decide should we include this information into our model. 
 ``` {r echo = FALSE}
 OnegramTokenizer <-
   function(x)
@@ -175,6 +176,7 @@ converse.TDM <- function(x){
 plotting.ngrams <- function(df, n=6){
   df <- converse.TDM(df)
   df <- df[1:n,]
+  ngram <- stri_count(df[1,1],regex="\\S+")
   p <-  ggplot(df, aes(x=reorder(Words, Frequency), Frequency, 
                       ymax = max(Frequency)*1.05))
   p <- p + geom_bar(stat = "identity", color = "lightgreen", fill = "lightgreen") + 
@@ -182,29 +184,30 @@ plotting.ngrams <- function(df, n=6){
                      position = "stack", hjust = 1) +
            xlab("Words") + 
            ylab("Frequency") + 
-           ggtitle(paste(n, "most frequent n-grams")) + 
+           ggtitle(paste(n, " most frequent ", ngram, "-grams", sep = "")) + 
            coord_flip()
   p
 }
-```
 
-``` {r echo = T}
 blogs.stat <- converse.TDM(blogs.matrix)
 blogs.sent.stat <- converse.TDM(sent.matrix)
 blogs.sent.stat <- blogs.sent.stat[-which(blogs.sent.stat$Words == "eofs sofs"),]
-blogs.sent.stat[-grep("sofs", blogs.sent.stat$Words),]
+blogs.sent.stat <- blogs.sent.stat[grep("sofs", blogs.sent.stat$Words),]
+
+```
+
+``` {r echo = T}
 cbind(head(blogs.sent.stat, 10), head(blogs.stat, 10))
 ```
 
-###Conclusion
-As we can see most popular word at the start of the sentence is different from the most poular word in the middle of the text. We can use this knowledge for more accurate prediction, when for example a user just open the program but still did not type anything. Also we can use knowledge about and of sentence to predict points and commas.
+####Conclusion of sentences
+As we can see most popular word at the start of the sentence is different from the most popular word in the middle of the text. We can use this knowledge for more accurate prediction, when for example a user just open the program but still did not type anything. Also we can use knowledge about and of sentence to predict points and commas.
 
 ##Exploratory Analysis
 
 Now let's have a look on the all three data set and find the answers for questions. But first let us clean them and do corpus of those texts as we did with blogs (code not shown).
 
-``` {r echo = T}
-
+``` {r echo = FALSE}
 news <- clean_text(news, "profanity.txt")
 twitter <- clean_text(twitter, "profanity.txt")
 news <- paste(news, collapse = " ")
@@ -216,19 +219,21 @@ docs <- c(blogs, news, twitter)
 whole.corpus <- VCorpus(VectorSource(docs))
 ```
 
-###Some words are more frequent than others - what are the distributions of word frequencies? 
-``` {r echo = T}
+####Some words are more frequent than others - what are the distributions of word frequencies? 
+``` {r echo = FALSE}
 one.matrix <- TermDocumentMatrix(whole.corpus, 
                                  control = list(tokenize = OnegramTokenizer))
 bi.matrix <- TermDocumentMatrix(whole.corpus, 
                                  control = list(tokenize = BigramTokenizer))
 tri.matrix <- TermDocumentMatrix(whole.corpus, 
                                  control = list(tokenize = TrigramTokenizer))
-
+```                                 
+                                 
+``` {r echo = T}
 plotting.ngrams(one.matrix, 20)
 ```
 
-As we can see, most frequent word are so called "stopwords". We can not get rid of them since we have to predict them too. But that would be interesting to have a look what is the frequency of word in corpus cleaned from "stopword". Let us have a look on cleaned corpus (code not shown).
+As we can see, most frequent word are so called "stop-words". We can not get rid of them since we have to predict them too. But that would be interesting to have a look what is the frequency of word in corpus cleaned from "stop-word". Let us have a look on cleaned corpus (code not shown).
 
 ``` {r echo = FALSE}
 #Here we create NoStopWord corpus and all n-gram for it
@@ -239,18 +244,17 @@ nsw.one.matrix <- TermDocumentMatrix(nsw.crp,
 plotting.ngrams(nsw.one.matrix, 20)
 ```
 
-We can see, there are no big differencies in frequencies of words comparing to "stopwords".
+We can see here smoother distribution of frequencies of words comparing to "stop-words". There is no such an outliners like **"and"** and **"the"**.
 
-
-###What are the frequencies of 2-grams and 3-grams in the dataset? 
+####What are the frequencies of 2-grams and 3-grams in the dataset? 
 ``` {r echo = T}
 plotting.ngrams(bi.matrix, 20)
 plotting.ngrams(tri.matrix, 20)
 ```
 
 
-###How many unique words do you need in a frequency sorted dictionary to cover 50% of all word instances in the language? 90%?
-``` {r echo = FALSE}
+####How many unique words do you need in a frequency sorted dictionary to cover 50% of all word instances in the language? 90%?
+``` {r echo = TRUE}
 coverage <- function(df, limit = 0.5){
     df <- converse.TDM(df)
     sum <- 0
@@ -265,15 +269,32 @@ coverage <- function(df, limit = 0.5){
 }
 ```
 
-We have **`r dim(converse.TDM(one.matrix))[1]`** unique words in our corpus with "stopwords" and **`r dim(converse.TDM(nsw.one.matrix))[1]`** in corpus without "stopwords". To cover 50% of frequency we need only **`r coverage(one.matrix)`** words with stopwords and **`r coverage(nsw.one.matrix)`** words without stopwords. In case of 90% coverage the numbers are **`r coverage(one.matrix, 0.9)`** and **`r coverage(nsw.one.matrix, 0.9)`** respectively.
+We have **`r dim(converse.TDM(one.matrix))[1]`** unique words in our corpus with "stop-words" and **`r dim(converse.TDM(nsw.one.matrix))[1]`** in corpus without "stop-words". To cover 50% of frequency we need only **`r coverage(one.matrix)`** words with stop-words and **`r coverage(nsw.one.matrix)`** words without stop-words. In case of 90% coverage the numbers are **`r coverage(one.matrix, 0.9)`** and **`r coverage(nsw.one.matrix, 0.9)`** respectively.
 
-###How do you evaluate how many of the words come from foreign languages? 
+Let us have a look on 1-, 2-, and 3-grams through histogram with width of bin equals 10.
 
-If we had a trusted English dictionary, we could remove all the listed words from corpus as we do with "stopwords" or profanity words. Everything left would shows us all foreign words.
+```{r echo = FALSE}
+onegrams <- converse.TDM(one.matrix)
+bigrams <- converse.TDM(bi.matrix)
+trigrams <- converse.TDM(tri.matrix)
+```
 
-###Can you think of a way to increase the coverage -- identifying words that may not be in the corpora or using a smaller number of words in the dictionary to cover the same number of phrases?
+```{r echo = TRUE}
+p1 <- qplot(sqrt(onegrams$Frequency), geom="histogram", binwidth=1) + xlab("Words")
+p2 <- qplot(sqrt(bigrams$Frequency), geom="histogram", binwidth=1) + xlab("Words")
+p3 <- qplot(sqrt(trigrams$Frequency), geom="histogram", binwidth=1) + xlab("Words")
+grid.arrange(p1, p2, p3, ncol=3)
+```
 
-We think both ways are possible. We can use smaller amount of words to increase the coverage if we know the context of corpus. Or we can consider synonims to cover more meaning with less words. Second way is more simplier. It looks like lemmatization can help.
+As we can see, most of these n-grams are not very often. We even had to apply sqrt to see more than one bin. That is very inspirational fact, because it shows us the way how we can reduce size of our model!
+
+####How do you evaluate how many of the words come from foreign languages? 
+
+If we had a trusted English dictionary, we could remove all the listed words from corpus as we do with "stop-words" or profanity words. Everything left would shows us all foreign words.
+
+####Can you think of a way to increase the coverage -- identifying words that may not be in the corpora or using a smaller number of words in the dictionary to cover the same number of phrases?
+
+We think both ways are possible. We can use smaller amount of words to increase the coverage if we know the context of corpus. Or we can consider synonyms to cover more meaning with less words. Second way is more simpler. It looks like lemmatization can help.
 
 ##Appendix - Functions used in the paper.
 ``` {r echo = T}
@@ -335,6 +356,7 @@ converse.TDM <- function(x){
 plotting.ngrams <- function(df, n=6){
   df <- converse.TDM(df)
   df <- df[1:n,]
+  ngram <- stri_count(df[1,1],regex="\\S+")
   p <-  ggplot(df, aes(x=reorder(Words, Frequency), Frequency, 
                       ymax = max(Frequency)*1.05))
   p <- p + geom_bar(stat = "identity", color = "lightgreen", fill = "lightgreen") + 
@@ -342,7 +364,7 @@ plotting.ngrams <- function(df, n=6){
                      position = "stack", hjust = 1) +
            xlab("Words") + 
            ylab("Frequency") + 
-           ggtitle(paste(n, "most frequent n-grams")) + 
+           ggtitle(paste(n, " most frequent ", ngram, "-grams", sep = "")) + 
            coord_flip()
   p
 }
