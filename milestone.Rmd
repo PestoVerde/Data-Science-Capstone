@@ -10,7 +10,7 @@ In this capstone we will work on understanding and building predictive text mode
 
 This paper is the first preliminary report of our work. It explains our exploratory analysis and our plans for the creating algorithm and application.
 
-To keep the paper compact, we do not echo all the code. To see complete code, please visit [github page](github.com/PestoVerde/Data-Science-Capstone). All function we use could be found in **Appendix** below.
+To keep the paper compact, we do not echo all the code. To see complete code, please visit [github page](   dndn cojef coe  efj jf j j  ). All function we use could be found in **Appendix** below.
 
 ##Data acquisition and cleaning
 
