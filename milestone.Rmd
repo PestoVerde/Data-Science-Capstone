@@ -65,7 +65,7 @@ rm(crp) #Removing corpus, because it is too big.
 
 It looks like we have enough data for prediction. It makes sense that before exploratory analysis we do some sampling to spend reasonable time for calculations. Let us take only **n** lines from each of three provided files (blogs, new, twitter).
 ``` {r echo = TRUE}
-n <- 10000
+n <- 25000
 set.seed(8310)
 blogs <- readLines("final/en_US/en_US.blogs.txt", skipNul = T)
 blogs <- sample(blogs, n)
@@ -88,7 +88,7 @@ Before creation a model we have to clean data. The are several standard steps in
 
 ####Research of sentences
 
-So, let us decide regarding point 4 of the list above. First of all, let us break our text in sentences and insert special marks for start of sentence (_sofs_) and end of sentence (_eofs_). Obviously we have to do this before cleaning punctuation. Later we will try to make preliminary conclusion should we consider boundaries of sentences in our model. We show calculations only for blogs, other sets of text give same results.
+So, let us decide regarding point 4 of the list above. First of all, let us break our text in sentences and insert special marks for start of sentence (__sofs__) and end of sentence (__eofs__). Obviously we have to do this before cleaning punctuation. Later we will try to make preliminary conclusion should we consider boundaries of sentences in our model. We show calculations only for blogs, other sets of text give same results.
 ``` {r echo = F}
 #Function marks boundaries of sentences
 convert.text.to.sentences <- function(text) {
@@ -201,7 +201,7 @@ cbind(head(blogs.sent.stat, 10), head(blogs.stat, 10))
 ```
 
 ####Conclusion of sentences
-As we can see most popular word at the start of the sentence is different from the most popular word in the middle of the text. We can use this knowledge for more accurate prediction, when for example a user just open the program but still did not type anything. Also we can use knowledge about and of sentence to predict points and commas.
+As we can see most popular word at the start of the sentence is different from the most popular word in the middle of the text. We can use this knowledge for more accurate prediction, when for example a user just open the program but still did not type anything. Also we can use knowledge about ends of sentences to predict points and commas.
 
 ##Exploratory Analysis
 
