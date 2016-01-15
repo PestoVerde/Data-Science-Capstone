@@ -6,11 +6,11 @@ output: html_document
 ## Data Science Capstone - Natural Language Processing
 # Milestone Report
 
-In this capstone we will work on understanding and building predictive text models for smart keyboard like those produced by [SwiftKey](https://swiftkey.com/en). To do so we are going to use three set of English texts of three different type - blogs, news and twits. The data is from a corpus called [HC Corpora](www.corpora.heliohost.org).
+In this capstone we will work on understanding and building predictive text models for smart keyboard like those produced by SwiftKey <http://swiftkey.com/en>. To do so we are going to use three set of English texts of three different type - blogs, news and twits. The data is from a corpus called [HC Corpora](www.corpora.heliohost.org).
 
 This paper is the first preliminary report of our work. It explains our exploratory analysis and our plans for the creating algorithm and application.
 
-To keep the paper compact, we do not echo all the code. To see complete code, please visit [github page](   dndn cojef coe  efj jf j j  ). All function we use could be found in **Appendix** below.
+To keep the paper compact, we do not echo all the code. To see complete code, please visit github page <http://github.com/PestoVerde/Data-Science-Capstone>. All function we use could be found in **Appendix** below.
 
 ##Data acquisition and cleaning
 
@@ -152,7 +152,7 @@ TrigramTokenizer <-
     unlist(lapply(ngrams(words(x), 3), paste, collapse = " "), use.names = FALSE)
 ```
 
-``` {r echo = TRUE}
+``` {r echo = FALSE}
 blogs <- paste(blogs, collapse = " ")
 blogs.sent <- paste(blogs.sent, collapse = " ")
 crp.blogs <- VCorpus(VectorSource(blogs))
@@ -254,7 +254,7 @@ plotting.ngrams(tri.matrix, 20)
 
 
 ####How many unique words do you need in a frequency sorted dictionary to cover 50% of all word instances in the language? 90%?
-``` {r echo = TRUE}
+``` {r echo = FALSE}
 coverage <- function(df, limit = 0.5){
     df <- converse.TDM(df)
     sum <- 0

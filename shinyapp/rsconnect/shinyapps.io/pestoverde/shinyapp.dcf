@@ -1,0 +1,8 @@
+name: shinyapp
+account: pestoverde
+server: shinyapps.io
+bundleId: 350108
+url: https://pestoverde.shinyapps.io/shinyapp/
+when: 1452852772.15045
+asMultiple: FALSE
+asStatic: FALSE

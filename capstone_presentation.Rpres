@@ -1,0 +1,54 @@
+Prediction of Words
+====================================
+
+
+Data Science Capstone - Natural Language Processing
+
+<small>by: Sergey Cherkasov</small>
+
+
+
+Preamble
+========================================================
+
+This presentation is a second part of Data Science Capstone. The first part is shiny application which can be found [here](https://pestoverde.shinyapps.io/shinyapp/).
+
+
+Data for this application is from a corpus called [HC Corpora](www.corpora.heliohost.org).
+
+Original files of this presentation, milestone report and final version of Shiny application can be found on [github.com](https://github.com/PestoVerde/Data-Science-Capstone)
+
+Prolegomenon
+========================================================
+
+<small>The task of this work is to create an application, which accepts an input from the user and predicts the next word. This kind of task is especcially useful for smartphones with small screen keyboards.</small> 
+
+<small>There are several of such applications on the market, one of the most famous is provided by [SwiftKey](https://swiftkey.com/en).</small>
+
+<small>The tasks of such a kind are solved with methods created in special part of computer science, called Natural Language Processing. The model is based on frequency analysis of n-grams. Those n-grams are made out of a given corpus of text. The model takes several last words of input and suggests the most frequent continuation. But what if the frequency of given n-gram is small? Here is the classic example of Dr. Jurafsky. "I can not read without my reading ..." Obvious continuation "glasses" can be missed by model. Instead the model can use "Francisco", if this word is more frequent. Smoothing methods solves this problem.</small>
+
+
+
+Application
+========================================================
+
+![alt text](interface.png)
+
+<small>Application can use either Kneser-Ney smoothing or Stupid Backoff. First one is more accurate. However it needs more calculations, that is why it is a little bit slow.</small>
+
+<small>Stupid Backoff is much faster, but less accurate. It can achieve the accuracy of Kneser-Ney on very big data massives.</small>
+
+<small>More information can be found at tab "Theory" of the application.</small>
+
+
+References
+========================================================
+
+- [Text Mining Infrastructure in R](http://www.jstatsoft.org/article/view/v025i05)
+
+- [Large Language Models in Machine Translation](http://www.aclweb.org/anthology/D07-1090.pdf)
+
+- [Implementation of Modified Kneser-Ney Smoothing...](https://west.uni-koblenz.de/sites/default/files/BachelorArbeit_MartinKoerner.pdf)
+
+- [Discussion Forums of Coursera](https://class.coursera.org/dsscapstone-006/forum) - Many thanks for all the people who share ideas!
+
